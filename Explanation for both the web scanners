@@ -2,43 +2,42 @@
 sends an HTTP GET request, just like a standard web browser
 
 2. timeout=5: This is a defensive programming safeguard. If the target server is down or stuck in a slow network loop, this parameter forces the script to break the 
-connection after 5 seconds instead of letting your scanner hang forever.
+connection after 5 seconds instead of letting the scanner hang forever.
 
 3. response.headers: When a server answers an HTTP request, it doesn't just send the webpage content; it sends a hidden administrative dictionary map containing 
 instructions for the web browser.
 
-4. if header in response.headers: Your script loops through this dictionary to look for critical security flags. For example, if X-Frame-Options is missing, it lets 
-your engine instantly flag that the site lacks protections against Clickjacking attacks.
+4. if header in response.headers: the script loops through this dictionary to look for critical security flags. For example, if X-Frame-Options is missing, it lets 
+the engine instantly flag that the site lacks protections against Clickjacking attacks.
 
 5. response.text: This fetches the completely raw, messy, raw HTML string source code directly out of the server's network response package.
 
-6. BeautifulSoup(..., "html.parser"): Raw HTML is incredibly difficult to search through using plain text rules. This command takes that massive string and turns it into 
-a structured object tree called a Document Object Model (DOM)
+6. BeautifulSoup(..., "html.parser"): Raw HTML is incredibly difficult to search through using plain text rules. This command takes that massive string and turns it 
+into a structured object tree called a Document Object Model (DOM)
 
 7. soup.find_all("form"): This method searches through the parsed HTML tree structure and pulls every single <form ...> </form> tag block it finds into a clean Python list.
 
-8. form.get("action"): In web development, the action attribute dictates where the user's data gets transmitted when they hit submit (in your output, it showed /post).
+8. form.get("action"): the action attribute dictates where the user's data gets transmitted when they hit submit (in your output, it showed /post).
 
-9. form.get("method"): This dictates how the data is sent. If it uses GET, data is attached directly to the URL string (e.g., website.com/login?password=123). Your code 
+9. form.get("method"): This dictates how the data is sent. If it uses GET, data is attached directly to the URL string (e.g., website.com/login?password=123). The code 
 checks for this to flag parameter exposure vulnerabilities! If it uses POST, data is packaged invisibly inside the request body payload.
 
 10. .upper(): This is a data normalization trick. HTML allows developers to write methods as lowercase post or uppercase POST. .upper() forces everything to uppercase so 
-our comparison logic (if method == "GET":) never fails due to a casing mismatch.
+the comparison logic (if method == "GET":) never fails due to a casing mismatch.
 
-11. enumerate(forms, start=1): Instead of just looping through the forms, enumerate tracks a counter variable automatically. Setting start=1 means your terminal prints 
+11. enumerate(forms, start=1): Instead of just looping through the forms, enumerate tracks a counter variable automatically. Setting start=1 means the terminal prints 
 out clean human-readable labels like Form #1 instead of computer-indexed labels like Form #0.
 
 12. form.find_all("input"): Instead of scanning the whole website, this limits the search to only the current form block, harvesting every data field text box, 
 radio button, or checkbox.
 
-13. input_field.get("name"): This is the parameter key that the server processes. For a penetration tester, knowing names like custname or custemail tells them exactly
-what variable variables to target with malicious injection strings during an exploit test.
+13. input_field.get("name"): This is the parameter key that the server processes. 
 
 14. from urllib.parse import urljoin: Web forms often use short relative paths like <form action="/post">. The urljoin command intelligently splices the baseline 
 address (https://httpbin.org) with that short action path to construct a complete, valid network endpoint path (https://httpbin.org/post).
 
-15. submit_data[input_name] = xss_payload: This builds a dictionary string payload. It maps the form fields (like custname) directly to our malicious string injection 
+15. submit_data[input_name] = xss_payload: This builds a dictionary string payload. It maps the form fields (like custname) directly to the malicious string injection 
 test (<script>alert('Vulnerable!')</script>).
 
-16. requests.post(target_url, data=submit_data): This fires a real server-side weapon simulation. It pushes all our malicious testing text directly over the web port 
+16. requests.post(target_url, data=submit_data): This fires a real server-side weapon simulation. It pushes all the malicious testing text directly over the web port 
 right into the site's processing loop.
